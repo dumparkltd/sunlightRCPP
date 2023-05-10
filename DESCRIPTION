@@ -1,0 +1,18 @@
+Package: sunlightRCPP
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Date: 2023-05-09
+Author: Timo Franz
+Maintainer: Timo Franz <timo@dumpark.com>
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    foreach,
+    raster,
+    Rcpp,
+    sp,
+    suncalc
+LinkingTo: Rcpp
