@@ -7,12 +7,16 @@
 calculateMinAltitudes(dem, azimuth_min, azimuth_max, settings)
 }
 \arguments{
-\item{settings}{a settings object}
+\item{dem}{dem raster}
 
-\item{demFilename}{filename of the dem}
+\item{azimuth_min}{lower bounds of azimuths to calculate}
+
+\item{azimuth_max}{upper bounds of azimuths}
+
+\item{settings}{a settings object}
 }
 \value{
-list of horizons for range of azimuths
+list of min altitudes for range of azimuths
 }
 \description{
 Calculates minimum altitudes for a DEM raster and a range of azimuths

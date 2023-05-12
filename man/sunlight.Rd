@@ -4,7 +4,18 @@
 \alias{sunlight}
 \title{Calculate Horizons Map Main}
 \usage{
-sunlight()
+sunlight(
+  dem = "raster1.tif",
+  demDir = "~/projects/INRAE/data/",
+  outDir = "~/projects/INRAE/data/altitudes/",
+  azimuthStep = 1,
+  azimuthMin = NULL,
+  azimuthMax = NULL,
+  targetResolution = 10,
+  gridConvergence = 1.48045031092839,
+  correctCurvature = FALSE,
+  useCPP = TRUE
+)
 }
 \description{
 Calculates horizons map for an elevation matrix

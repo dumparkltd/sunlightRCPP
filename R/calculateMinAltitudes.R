@@ -13,17 +13,20 @@
 #'
 calculateMinAltitudes = function(dem, azimuth_min, azimuth_max, settings) {
   azimuth_step = settings$azimuth_step
-  result <- c()
+  result <- list()
   for (azimuth in seq(azimuth_min, azimuth_max, by = azimuth_step)) {
+    print(paste(Sys.time(), ' - ', 'calculating altitudes for azimuth: ', azimuth, sep=""))
     # call CPP function get_altitudes_for_azimuth_cpp to calculate the minimum
     # altitudes for all cells in the dem and current azimuth
+    # returns a NumericMatrix
     alt_azi = get_altitudes_for_azimuth_cpp(
       as.matrix(dem),
       azimuth,
       settings$grid_convergence,
-      settings$resolution_dem_target
+      settings$resolution_dem_target,
+      settings$correct_curvature
     )
-    result = append(result, list(azimuth = azimuth, altitudes = alt_azi))
+    result[[as.character(azimuth)]] = alt_azi
   }
 
   return(result)

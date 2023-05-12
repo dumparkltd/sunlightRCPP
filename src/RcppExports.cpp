@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // get_altitudes_for_azimuth_cpp
-NumericMatrix get_altitudes_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution);
-RcppExport SEXP _sunlightRCPP_get_altitudes_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP) {
+NumericMatrix get_altitudes_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution, bool correctCurvature);
+RcppExport SEXP _sunlightRCPP_get_altitudes_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP, SEXP correctCurvatureSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,31 +20,27 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type azimuth(azimuthSEXP);
     Rcpp::traits::input_parameter< double >::type gridConvergence(gridConvergenceSEXP);
     Rcpp::traits::input_parameter< double >::type resolution(resolutionSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_altitudes_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution));
+    Rcpp::traits::input_parameter< bool >::type correctCurvature(correctCurvatureSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_altitudes_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution, correctCurvature));
     return rcpp_result_gen;
 END_RCPP
 }
-// get_min_altitude_for_azimuth_cpp
-double get_min_altitude_for_azimuth_cpp(NumericMatrix& dem, int col, int row, double maxElev, double dx, double dy, double dxy);
-RcppExport SEXP _sunlightRCPP_get_min_altitude_for_azimuth_cpp(SEXP demSEXP, SEXP colSEXP, SEXP rowSEXP, SEXP maxElevSEXP, SEXP dxSEXP, SEXP dySEXP, SEXP dxySEXP) {
+// get_shades_for_altitudes_cpp
+NumericMatrix get_shades_for_altitudes_cpp(NumericMatrix& altitudes, double minAltitude);
+RcppExport SEXP _sunlightRCPP_get_shades_for_altitudes_cpp(SEXP altitudesSEXP, SEXP minAltitudeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix& >::type dem(demSEXP);
-    Rcpp::traits::input_parameter< int >::type col(colSEXP);
-    Rcpp::traits::input_parameter< int >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< double >::type maxElev(maxElevSEXP);
-    Rcpp::traits::input_parameter< double >::type dx(dxSEXP);
-    Rcpp::traits::input_parameter< double >::type dy(dySEXP);
-    Rcpp::traits::input_parameter< double >::type dxy(dxySEXP);
-    rcpp_result_gen = Rcpp::wrap(get_min_altitude_for_azimuth_cpp(dem, col, row, maxElev, dx, dy, dxy));
+    Rcpp::traits::input_parameter< NumericMatrix& >::type altitudes(altitudesSEXP);
+    Rcpp::traits::input_parameter< double >::type minAltitude(minAltitudeSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_shades_for_altitudes_cpp(altitudes, minAltitude));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sunlightRCPP_get_altitudes_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitudes_for_azimuth_cpp, 4},
-    {"_sunlightRCPP_get_min_altitude_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_min_altitude_for_azimuth_cpp, 7},
+    {"_sunlightRCPP_get_altitudes_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitudes_for_azimuth_cpp, 5},
+    {"_sunlightRCPP_get_shades_for_altitudes_cpp", (DL_FUNC) &_sunlightRCPP_get_shades_for_altitudes_cpp, 2},
     {NULL, NULL, 0}
 };
 

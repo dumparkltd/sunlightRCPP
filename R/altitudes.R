@@ -1,6 +1,6 @@
-#'@title Calculate Horizons Map Main
+#'@title Calculate altitude angles for a dem and range of azimuths
 #'
-#'@description Calculates horizons map for an elevation matrix
+#'@description Calculates altitude angles for each cell of a dem and a range of sun azimuths above which the cell potentially receives direct sunlight
 #'
 #'
 #'@useDynLib sunlightRCPP, .registration = TRUE
@@ -10,22 +10,22 @@
 #'@import suncalc
 #'@export
 
-sunlight = function(
-  dem = "raster1.tif",
-  demDir = "~/projects/INRAE/data/",
-  outDir = "~/projects/INRAE/data/altitudes/",
-  azimuthStep = 1,
-  azimuthMin = NULL,
-  azimuthMax = NULL,
-  targetResolution = 10,
-  gridConvergence = 1.4804503109283933,
-  correctCurvature = FALSE,
-  useCPP = TRUE
+altitudes = function(
+    dem = "raster1.tif",
+    demDir = "~/projects/INRAE/data/",
+    outDir = "~/projects/INRAE/data/altitudes/RCPP/",
+    azimuthStep = 1,
+    azimuthMin = NULL,
+    azimuthMax = NULL,
+    targetResolution = 10,
+    gridConvergence = 1.4804503109283933,
+    correctCurvature = FALSE,
+    useCPP = TRUE
 ) {
 
   # load raster
   demFileAndPath = paste(demDir, dem, sep="")
-  print(paste(Sys.time(), " - ", "loading dem: ", dem, "from: ", demFileAndPath, sep=""))
+  print(paste(Sys.time(), " - ", "loading dem: ", dem, " from: ", demFileAndPath, sep=""))
   dem_original = raster::raster(demFileAndPath)
 
 
