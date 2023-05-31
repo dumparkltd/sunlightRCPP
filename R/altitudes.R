@@ -28,13 +28,16 @@ altitudes = function(
   print(paste(Sys.time(), " - ", "loading dem: ", dem, " from: ", demFileAndPath, sep=""))
   dem_original = raster::raster(demFileAndPath)
 
-
-  print(paste("re-sampling dem: ", targetResolution, sep = ""))
-  # re-sample original raster
-  dem_at_res <- raster::aggregate(
-    dem_original,
-    fact = targetResolution / raster::xres(dem_original)
-  )
+  if (raster::xres(dem_original) != targetResolution) {
+    print(paste("re-sampling dem: ", targetResolution, sep = ""))
+    # re-sample original raster
+    dem_at_res <- raster::aggregate(
+      dem_original,
+      fact = targetResolution / raster::xres(dem_original)
+    )
+  } else {
+    dem_at_res <- dem_original
+  }
 
   azimuth_min <- azimuthMin
   azimuth_max <- azimuthMax

@@ -21,7 +21,7 @@ hasShade = function(
   # 1. figure out sun position based on input raster
   # load raster
   demFileAndPath = paste(demDir, dem, sep="")
-  print(paste(Sys.time(), " - ", "loading dem: ", dem, "from: ", demFileAndPath, sep=""))
+  print(paste(Sys.time(), " - ", "loading dem: ", dem, " from: ", demFileAndPath, sep=""))
   dem_original = raster::raster(demFileAndPath)
   # figure out min/max azimuth
   latlon <- as.data.frame(
@@ -55,10 +55,11 @@ hasShade = function(
   )
 
   altFile = paste(altitudesDir, altFilename, sep="")
-  print(paste(Sys.time(), " - ", "loading altitude file for given azimuth...", sep = ""))
+  print(paste(Sys.time(), " - ", "loading altitude file (", altFilename, ")for given azimuth...", sep = ""))
   altitudes <- raster::raster(altFile)
   print(paste(Sys.time(), " - ", "calculating shades for altitude...", sep = ""))
-  if (altitude > maxValue(altitudes)) {
+  startTS = Sys.time()
+  if (altitude > raster::maxValue(altitudes)) {
     shades <- raster::raster(
       nrows = raster::nrow(altitudes),
       ncols = raster::ncol(altitudes),
@@ -69,7 +70,7 @@ hasShade = function(
     )
   } else {
     shadeMatrix <- get_shades_for_altitudes_cpp(
-      as.matrix(altitudes),
+      raster::as.matrix(altitudes),
       altitude
     )
     shades <- raster::raster(
@@ -81,6 +82,7 @@ hasShade = function(
       vals = shadeMatrix
     )
   }
+  endTS = Sys.time()
   outFilename = paste(
     "shade-",
     gsub("-", "", gsub(":", "", gsub(" ", "_", timeUTC))),
@@ -88,12 +90,13 @@ hasShade = function(
     "_alt-", round(altitude),
     "_dem-", tools::file_path_sans_ext(dem),
     "_resolution-", targetResolution,
+    "_", floor(as.numeric(endTS)),
     ".tif",
     sep=""
   )
   outFile = paste(outDir, outFilename, sep="")
   print(paste(Sys.time(), " - ", "shades calculated, writing raster file: ", outFile, sep = ""))
-
+  print(paste("Shade calculation took", endTS - startTS, "seconds", sep = " "))
   raster::writeRaster(
     shades,
     filename=outFile,

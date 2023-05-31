@@ -125,10 +125,9 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
   // get max height from dem
   double maxElev = max(dem);
 
-  for(int row = 0; row < height; row++) {
+  for(int col = 0; col < width; col++) {
     Rcpp::checkUserInterrupt();
-    for(int col = 0; col < width; col++) {
-      Rcpp::checkUserInterrupt();
+    for(int row = 0; row < height; row++) {
       double elevationOrigin = dem(row, col);
       double altitudeMin = 0;
       if (elevationOrigin != 0) {

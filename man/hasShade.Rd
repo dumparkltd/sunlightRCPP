@@ -7,7 +7,7 @@
 hasShade(
   dem = "raster1.tif",
   demDir = "~/projects/INRAE/data/",
-  timeUTC = "2022-08-20 11:45:00",
+  timeUTC = "2022-08-20 9:45:00",
   altitudesDir = "~/projects/INRAE/data/altitudes/RCPP/",
   outDir = "~/projects/INRAE/data/shademaps/RCPP/",
   azimuthStep = 1,
