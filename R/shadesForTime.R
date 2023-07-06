@@ -9,7 +9,7 @@
 #'@import sp
 #'@export
 
-hasShade = function(
+shadesForTime = function(
     dem = "raster1.tif",
     demDir = "~/projects/INRAE/data/",
     timeUTC = '2022-08-20 9:45:00',

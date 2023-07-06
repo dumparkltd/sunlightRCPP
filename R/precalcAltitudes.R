@@ -10,18 +10,18 @@
 #'@import suncalc
 #'@export
 
-altitudes = function(
-    dem = "raster1.tif",
+precalcAltitudes = function(
+    dem = "dem2.tif",
     demDir = "~/projects/INRAE/data/",
     outDir = "~/projects/INRAE/data/altitudes/RCPP/",
     azimuthStep = 1,
     azimuthMin = NULL,
     azimuthMax = NULL,
-    targetResolution = 10,
-    gridConvergence = 1.4804503109283933,
-    correctCurvature = FALSE,
-    useCPP = TRUE
+    targetResolution = 12.5,
+    gridConvergence = 0, # WGS84
+    correctCurvature = FALSE
 ) {
+  # gridConvergence = 1.4804503109283933 for lambert conformal conic
 
   # load raster
   demFileAndPath = paste(demDir, dem, sep="")
@@ -133,16 +133,16 @@ altitudes = function(
       azimuth_step = azimuthStep,
       resolution_dem_target = targetResolution,
       grid_convergence = gridConvergence,
-      correct_curvature = correctCurvature,
-      use_cpp = useCPP
+      correct_curvature = correctCurvature
     )
   )
   print(paste(Sys.time(), ' - ', 'Done calculating altitudes. Writing output files to: ', outDir, sep=""))
   for (azimuth in names(result)) {
     outFilename = paste(
-      "azimuth-", azimuth,
+      "altitudes_azimuth-", azimuth,
       "_dem-", tools::file_path_sans_ext(dem),
       "_resolution-", targetResolution,
+      "_curv-", correctCurvature,
       ".tif",
       sep=""
     )

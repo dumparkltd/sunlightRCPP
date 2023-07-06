@@ -1,6 +1,6 @@
-#'@title Calculate Horizons Map Main
+#'@title Calculate altitude angles for a dem and range of azimuths
 #'
-#'@description Calculates horizons map for an elevation matrix
+#'@description Calculates altitude angles for each cell of a dem and a range of sun azimuths above which the cell potentially receives direct sunlight
 #'
 #'
 #'@useDynLib sunlightRCPP, .registration = TRUE
@@ -10,31 +10,34 @@
 #'@import suncalc
 #'@export
 
-sunlight = function(
-  dem = "raster1.tif",
-  demDir = "~/projects/INRAE/data/",
-  outDir = "~/projects/INRAE/data/altitudes/",
-  azimuthStep = 1,
-  azimuthMin = NULL,
-  azimuthMax = NULL,
-  targetResolution = 10,
-  gridConvergence = 1.4804503109283933,
-  correctCurvature = FALSE,
-  useCPP = TRUE
+precalcAltitudeDistances = function(
+    dem = "dem2.tif",
+    demDir = "~/projects/INRAE/data/",
+    outDir = "~/projects/INRAE/data/altitudes/RCPP/",
+    azimuthStep = 1,
+    azimuthMin = NULL,
+    azimuthMax = NULL,
+    targetResolution = 12.5,
+    gridConvergence = 0, # WGS84
+    correctCurvature = FALSE
 ) {
-
+  # gridConvergence = 1.4804503109283933 for lambert conformal conic
   # load raster
   demFileAndPath = paste(demDir, dem, sep="")
-  print(paste(Sys.time(), " - ", "loading dem: ", dem, "from: ", demFileAndPath, sep=""))
+  print(paste(Sys.time(), " - ", "loading dem: ", dem, " from: ", demFileAndPath, sep=""))
   dem_original = raster::raster(demFileAndPath)
 
+  if (raster::xres(dem_original) != targetResolution) {
+    print(paste("re-sampling dem: ", targetResolution, sep = ""))
+    # re-sample original raster
+    dem_at_res <- raster::aggregate(
+      dem_original,
+      fact = targetResolution / raster::xres(dem_original)
+    )
+  } else {
+    dem_at_res <- dem_original
+  }
 
-  print(paste("re-sampling dem: ", targetResolution, sep = ""))
-  # re-sample original raster
-  dem_at_res <- raster::aggregate(
-    dem_original,
-    fact = targetResolution / raster::xres(dem_original)
-  )
 
   azimuth_min <- azimuthMin
   azimuth_max <- azimuthMax
@@ -112,17 +115,10 @@ sunlight = function(
     ))
   }
 
-  settings <- list(
-    azimuth_step = azimuthStep,
-    resolution_dem_target = targetResolution,
-    grid_convergence = gridConvergence,
-    correct_curvature = correctCurvature
-  )
-
   print(paste(Sys.time(), ' - ', 'Calculating altitudes...', sep=""))
 
   # get altitude raster layers for each azimuth
-  result = calculateMinAltitudes(
+  result = calculateMinAltitudeDistances(
     dem_at_res,
     azimuth_min,
     azimuth_max,
@@ -130,16 +126,17 @@ sunlight = function(
       azimuth_step = azimuthStep,
       resolution_dem_target = targetResolution,
       grid_convergence = gridConvergence,
-      correct_curvature = correctCurvature,
-      use_cpp = useCPP
+      correct_curvature = correctCurvature
     )
   )
   print(paste(Sys.time(), ' - ', 'Done calculating altitudes. Writing output files to: ', outDir, sep=""))
   for (azimuth in names(result)) {
     outFilename = paste(
-      "azimuth-", azimuth,
+      "altitude-distances_azimuth-", azimuth,
       "_dem-", tools::file_path_sans_ext(dem),
       "_resolution-", targetResolution,
+      "_curv-", correctCurvature,
+      print(as.numeric(Sys.time())*1000, digits=12),
       ".tif",
       sep=""
     )

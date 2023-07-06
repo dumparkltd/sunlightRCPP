@@ -2,8 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
+get_altitude_distance_for_azimuth_cpp <- function(dem, azimuth, gridConvergence, resolution, correctCurvature) {
+    .Call(`_sunlightRCPP_get_altitude_distance_for_azimuth_cpp`, dem, azimuth, gridConvergence, resolution, correctCurvature)
+}
+
+#' @export
 get_altitudes_for_azimuth_cpp <- function(dem, azimuth, gridConvergence, resolution, correctCurvature) {
     .Call(`_sunlightRCPP_get_altitudes_for_azimuth_cpp`, dem, azimuth, gridConvergence, resolution, correctCurvature)
+}
+
+#' @export
+get_dxdy_for_azimuth_cpp <- function(dem, azimuth, resolution) {
+    .Call(`_sunlightRCPP_get_dxdy_for_azimuth_cpp`, dem, azimuth, resolution)
 }
 
 #' @export

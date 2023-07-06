@@ -5,31 +5,31 @@ using namespace Rcpp;
 
 // modulo but for doubles
 // scribed from https://stackoverflow.com/a/53998265
-double dmod(double x, double y) {
+double dmodX(double x, double y) {
   return x - (int)(x/y) * y;
 }
 
-double deg2rad(double deg) {
+double deg2radX(double deg) {
   return deg / 180 * M_PI;
 }
 
-double rad2deg(double rad) {
+double rad2degX(double rad) {
   return rad * 180 / M_PI;
 }
 
-double getCurvatureCorrection(double distance) {
+double getCurvatureCorrectionX(double distance) {
   // util
   int radiusEarth = 6371000; // in m
   // 2 * M_PI * radiusEarth;
   double anglePerUnit = 0.000009;
   // 360 / circumferenceEarth;
   double totalAngle = anglePerUnit * distance; //  Unit degrees * distance
-  return radiusEarth * (1 - cos(deg2rad(totalAngle)));
+  return radiusEarth * (1 - cos(deg2radX(totalAngle)));
 }
 
 //' @export
 // [[Rcpp::export]]
-NumericMatrix get_altitudes_for_azimuth_cpp(
+NumericMatrix get_altitude_distance_for_azimuth_cpp(
     NumericMatrix& dem,
     double azimuth,
     double gridConvergence,
@@ -38,46 +38,47 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
   ) {
 
   // figure out row and column offset dx, dy for azimuth
-  double azi = dmod((azimuth + gridConvergence), 360);
+  double azi = dmodX((azimuth + gridConvergence), 360);
   // steps x and y as factor
   double dx;
   double dy;
+  // steps x and y as factor
   // figure out effective angle for step calculation
-  double aziRel = dmod(azi,90);
+  double aziRel = dmodX(azi,90);
   if (aziRel > 45) {
     aziRel = 90 - aziRel;
   }
-  double dopp = tan(deg2rad(aziRel));
+  double dopp = tan(deg2radX(aziRel));
 
   // NNE
   if (azi <= 45) {
     dx = dopp;
     dy = -1;
-  // NEE
+    // NEE
   } else if ((azi > 45) & (azi <= 90)) {
     dx = 1;
     dy = dopp * -1;
-  // SEE
+    // SEE
   } else if ((azi > 90) & (azi <= 135)) {
     dx = 1;
     dy = dopp;
-  // SSE
+    // SSE
   } else if ((azi > 135) & (azi <= 180)) {
     dx = dopp;
     dy = 1;
-  // SSW
+    // SSW
   } else if  ((azi > 180) & (azi <= 225)) {
     dx = dopp * -1;
     dy = 1;
-  // SWW
+    // SWW
   } else if  ((azi > 225) & (azi <= 270)) {
     dx = -1;
     dy = dopp;
-  // NWW
+    // NWW
   } else if  ((azi > 270) & (azi <= 315)) {
     dx = -1;
     dy = dopp * -1;
-  // NNW
+    // NNW
   } else if (azi > 315) {
     dx = dopp * -1;
     dy = -1;
@@ -91,7 +92,7 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
   int height = dem.nrow();
 
   // initialize result matrix
-  NumericMatrix minAltitudeMatrix(height, width);
+  NumericMatrix minAltitudeDistanceMatrix(height, width);
 
   // get max height from dem
   double maxElev = max(dem);
@@ -101,6 +102,7 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
     for(int row = 0; row < height; row++) {
       double elevationOrigin = dem(row, col);
       double altitudeMin = 0;
+      double altMinDistance = 0;
       double correction = 0;
       if (!NumericVector::is_na(elevationOrigin)) {
         // calculate maximum possible difference in elevation
@@ -116,18 +118,19 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
             double elevDiffStep = elevStep - elevationOrigin;
             if (elevDiffStep > 0) {
               if (correctCurvature) {
-                correction = getCurvatureCorrection(distanceStep);
+                correction = getCurvatureCorrectionX(distanceStep);
                 elevDiffStep = elevDiffStep - correction;
               }
               if (elevDiffStep > 0) {
                 // calculate angle
-                double altitudeStep = rad2deg(atan(elevDiffStep / distanceStep));
+                double altitudeStep = rad2degX(atan(elevDiffStep / distanceStep));
                 if (altitudeStep > altitudeMin) {
                   altitudeMin = altitudeStep;
+                  altMinDistance = distanceStep;
                 } else {
                   // check if higher altitude is feasible
                   double elevationMaxDiff = maxElev - correction - elevationOrigin;
-                  double altitudeMax = rad2deg(atan(elevationMaxDiff / distanceStep));
+                  double altitudeMax = rad2degX(atan(elevationMaxDiff / distanceStep));
                   if (altitudeMax < altitudeMin) {
                     break;
                   }
@@ -140,9 +143,9 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
           }
         }
       }
-      minAltitudeMatrix(row, col) = altitudeMin;
+      minAltitudeDistanceMatrix(row, col) = altMinDistance;
     }
   }
 
-  return minAltitudeMatrix;
+  return minAltitudeDistanceMatrix;
 }
