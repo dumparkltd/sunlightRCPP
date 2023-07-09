@@ -24,7 +24,8 @@ calculateMinAltitudes = function(dem, azimuth_min, azimuth_max, settings) {
       azimuth,
       settings$grid_convergence,
       settings$resolution_dem_target,
-      settings$correct_curvature
+      settings$correct_curvature,
+      settings$inc_factor
     )
     result[[as.character(azimuth)]] = alt_azi
   }

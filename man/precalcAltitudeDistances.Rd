@@ -13,7 +13,8 @@ precalcAltitudeDistances(
   azimuthMax = NULL,
   targetResolution = 12.5,
   gridConvergence = 0,
-  correctCurvature = FALSE
+  correctCurvature = FALSE,
+  sampleIncFactor = 1
 )
 }
 \description{

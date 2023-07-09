@@ -10,9 +10,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// get_altitude_distance_for_azimuth_cpp
-NumericMatrix get_altitude_distance_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution, bool correctCurvature);
-RcppExport SEXP _sunlightRCPP_get_altitude_distance_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP, SEXP correctCurvatureSEXP) {
+// get_altitude_distances_for_azimuth_cpp
+NumericMatrix get_altitude_distances_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution, bool correctCurvature, double incFactor);
+RcppExport SEXP _sunlightRCPP_get_altitude_distances_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP, SEXP correctCurvatureSEXP, SEXP incFactorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,13 +21,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gridConvergence(gridConvergenceSEXP);
     Rcpp::traits::input_parameter< double >::type resolution(resolutionSEXP);
     Rcpp::traits::input_parameter< bool >::type correctCurvature(correctCurvatureSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_altitude_distance_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution, correctCurvature));
+    Rcpp::traits::input_parameter< double >::type incFactor(incFactorSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_altitude_distances_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution, correctCurvature, incFactor));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_altitudes_for_azimuth_cpp
-NumericMatrix get_altitudes_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution, bool correctCurvature);
-RcppExport SEXP _sunlightRCPP_get_altitudes_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP, SEXP correctCurvatureSEXP) {
+NumericMatrix get_altitudes_for_azimuth_cpp(NumericMatrix& dem, double azimuth, double gridConvergence, double resolution, bool correctCurvature, double incFactor);
+RcppExport SEXP _sunlightRCPP_get_altitudes_for_azimuth_cpp(SEXP demSEXP, SEXP azimuthSEXP, SEXP gridConvergenceSEXP, SEXP resolutionSEXP, SEXP correctCurvatureSEXP, SEXP incFactorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,7 +37,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type gridConvergence(gridConvergenceSEXP);
     Rcpp::traits::input_parameter< double >::type resolution(resolutionSEXP);
     Rcpp::traits::input_parameter< bool >::type correctCurvature(correctCurvatureSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_altitudes_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution, correctCurvature));
+    Rcpp::traits::input_parameter< double >::type incFactor(incFactorSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_altitudes_for_azimuth_cpp(dem, azimuth, gridConvergence, resolution, correctCurvature, incFactor));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -67,8 +69,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_sunlightRCPP_get_altitude_distance_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitude_distance_for_azimuth_cpp, 5},
-    {"_sunlightRCPP_get_altitudes_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitudes_for_azimuth_cpp, 5},
+    {"_sunlightRCPP_get_altitude_distances_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitude_distances_for_azimuth_cpp, 6},
+    {"_sunlightRCPP_get_altitudes_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitudes_for_azimuth_cpp, 6},
     {"_sunlightRCPP_get_dxdy_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_dxdy_for_azimuth_cpp, 3},
     {"_sunlightRCPP_get_shades_for_altitudes_cpp", (DL_FUNC) &_sunlightRCPP_get_shades_for_altitudes_cpp, 2},
     {NULL, NULL, 0}

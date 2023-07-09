@@ -19,7 +19,8 @@ precalcAltitudeDistances = function(
     azimuthMax = NULL,
     targetResolution = 12.5,
     gridConvergence = 0, # WGS84
-    correctCurvature = FALSE
+    correctCurvature = FALSE,
+    sampleIncFactor = 1
 ) {
   # gridConvergence = 1.4804503109283933 for lambert conformal conic
   # load raster
@@ -126,7 +127,8 @@ precalcAltitudeDistances = function(
       azimuth_step = azimuthStep,
       resolution_dem_target = targetResolution,
       grid_convergence = gridConvergence,
-      correct_curvature = correctCurvature
+      correct_curvature = correctCurvature,
+      inc_factor = sampleIncFactor
     )
   )
   print(paste(Sys.time(), ' - ', 'Done calculating altitudes. Writing output files to: ', outDir, sep=""))
@@ -136,7 +138,8 @@ precalcAltitudeDistances = function(
       "_dem-", tools::file_path_sans_ext(dem),
       "_resolution-", targetResolution,
       "_curv-", correctCurvature,
-      print(as.numeric(Sys.time())*1000, digits=12),
+      "_sample-", sampleIncFactor,
+      "_", as.character(as.numeric(Sys.time())*100000),
       ".tif",
       sep=""
     )

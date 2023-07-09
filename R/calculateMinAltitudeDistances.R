@@ -19,12 +19,13 @@ calculateMinAltitudeDistances = function(dem, azimuth_min, azimuth_max, settings
     # call CPP function get_altitudes_for_azimuth_cpp to calculate the minimum
     # altitudes for all cells in the dem and current azimuth
     # returns a NumericMatrix
-    alt_azi = get_altitude_distance_for_azimuth_cpp(
+    alt_azi = get_altitude_distances_for_azimuth_cpp(
       as.matrix(dem),
       azimuth,
       settings$grid_convergence,
       settings$resolution_dem_target,
-      settings$correct_curvature
+      settings$correct_curvature,
+      settings$inc_factor
     )
     result[[as.character(azimuth)]] = alt_azi
   }

@@ -34,14 +34,15 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
     double azimuth,
     double gridConvergence,
     double resolution,
-    bool correctCurvature
+    bool correctCurvature,
+    double incFactor
   ) {
 
   // figure out row and column offset dx, dy for azimuth
   double azi = dmod((azimuth + gridConvergence), 360);
   // steps x and y as factor
-  double dx;
-  double dy;
+  double dx = 1;
+  double dy = 1;
   // figure out effective angle for step calculation
   double aziRel = dmod(azi,90);
   if (aziRel > 45) {
@@ -55,20 +56,20 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
     dy = -1;
   // NEE
   } else if ((azi > 45) & (azi <= 90)) {
-    dx = 1;
+    //    dx = 1;
     dy = dopp * -1;
   // SEE
   } else if ((azi > 90) & (azi <= 135)) {
-    dx = 1;
+    //  dx = 1;
     dy = dopp;
   // SSE
   } else if ((azi > 135) & (azi <= 180)) {
     dx = dopp;
-    dy = 1;
+    // dy = 1;
   // SSW
   } else if  ((azi > 180) & (azi <= 225)) {
     dx = dopp * -1;
-    dy = 1;
+    // dy = 1;
   // SWW
   } else if  ((azi > 225) & (azi <= 270)) {
     dx = -1;
@@ -85,6 +86,7 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
 
   // dxy = distance of sampling steps in m
   double dxy = sqrt(pow(dx, 2) + pow(dy, 2)) * resolution;
+
 
   // remember shape
   int width = dem.ncol();
@@ -105,20 +107,23 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
       if (!NumericVector::is_na(elevationOrigin)) {
         // calculate maximum possible difference in elevation
         int step = 0;
+        int stepFactor = 0;
         // traverse transect to find max altitude difference
         while (true) {
+          stepFactor = step + pow(incFactor, step + 1) ;
           step++;
-          double distanceStep = dxy * step;
-          int rowStep = row + round(dy * step);
-          int colStep = col + round(dx * step);
+          // stepFactor = step;
+          double distanceStep = dxy * stepFactor;
+          int rowStep = row + round(dy * stepFactor);
+          int colStep = col + round(dx * stepFactor);
           if (rowStep >= 0 && rowStep < height && colStep >= 0 && colStep < width) {
             double elevStep = dem(rowStep, colStep);
             double elevDiffStep = elevStep - elevationOrigin;
             if (elevDiffStep > 0) {
-              if (correctCurvature) {
-                correction = getCurvatureCorrection(distanceStep);
-                elevDiffStep = elevDiffStep - correction;
-              }
+              // if (correctCurvature) {
+              //   correction = getCurvatureCorrection(distanceStep);
+              //   elevDiffStep = elevDiffStep - correction;
+              // }
               if (elevDiffStep > 0) {
                 // calculate angle
                 double altitudeStep = rad2deg(atan(elevDiffStep / distanceStep));
