@@ -13,6 +13,7 @@ Imports:
     foreach,
     raster,
     Rcpp,
+    RcppParallel,
     sp,
     suncalc
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppParallel

@@ -21,7 +21,7 @@ precalcAltitudes = function(
     gridConvergence = 0, # WGS84
     correctCurvature = FALSE,
     sampleIncFactor = 1,
-    cutVertically = TRUE,
+    cutVertically = FALSE,
     stripeWidth = 10000
 ) {
   # gridConvergence = 1.4804503109283933 for lambert conformal conic
@@ -117,18 +117,10 @@ precalcAltitudes = function(
       sep=""
     ))
   }
-
-  settings <- list(
-    azimuth_step = azimuthStep,
-    resolution_dem_target = targetResolution,
-    grid_convergence = gridConvergence,
-    correct_curvature = correctCurvature
-  )
-
   print(paste(Sys.time(), ' - ', 'Calculating altitudes...', sep=""))
 
   # get altitude raster layers for each azimuth
-  result = calculateMinAltitudes(
+  calculateMinAltitudes(
     dem_at_res,
     azimuth_min,
     azimuth_max,
@@ -137,68 +129,10 @@ precalcAltitudes = function(
       resolution_dem_target = targetResolution,
       grid_convergence = gridConvergence,
       correct_curvature = correctCurvature,
-      inc_factor = sampleIncFactor
+      inc_factor = sampleIncFactor,
+      out_dir = outDir,
+      cut_vertically = cutVertically
     )
   )
-  print(paste(Sys.time(), ' - ', 'Done calculating altitudes. Writing output files to: ', outDir, sep=""))
-  for (azimuth in names(result)) {
-    rasterForAzimuth <- raster::raster(
-      nrows = raster::nrow(dem_at_res),
-      ncols = raster::ncol(dem_at_res),
-      ext = raster::extent(dem_at_res),
-      res = raster::res(dem_at_res),
-      crs = raster::crs(dem_at_res),
-      vals = result[[azimuth]]
-    )
-    outFilename = paste(
-      "altitudes_azimuth-", azimuth,
-      ".tif",
-      sep=""
-    )
-    raster::writeRaster(
-      rasterForAzimuth,
-      filename=paste(outDir, outFilename, sep=""),
-      format="GTiff",
-      overwrite=TRUE
-    )
-    if (cutVertically == TRUE) {
-      xres = raster::xres(rasterForAzimuth) # in px
-      stripe_w_px = stripeWidth/xres # in p
-      num_stripes <- ceiling(ncol(rasterForAzimuth) / stripe_w_px)
-      stripe_boundaries <- seq(from = 1, to = ncol(rasterForAzimuth), by = stripe_w_px)
-      stripe_boundaries <- c(stripe_boundaries, ncol(rasterForAzimuth))
-      stripes <- list()
-      for (i in 1:(num_stripes)) {
-        start_col <- stripe_boundaries[i]
-        end_col <- stripe_boundaries[i+1] - 1
-        stripes[[i]] <- raster::crop(rasterForAzimuth, raster::extent(rasterForAzimuth, 1, raster::nrow(rasterForAzimuth), start_col, end_col))
-      }
-      for (i in 1:(num_stripes)) {
-        stripe <- stripes[[i]]
-        outFilename = paste(
-          "altitudes_azimuth-", azimuth,
-          # "_dem-", tools::file_path_sans_ext(dem),
-          # "_resolution-", targetResolution,
-          # "_curv-", correctCurvature,
-          # "_sample-", gsub(".", "-", sampleIncFactor),
-          "_stripe-", i,
-          # "_", as.character(as.numeric(Sys.time())*100000),
-          ".tif",
-          sep=""
-        )
-        # print(outFilename)
-        # print(result[[azimuth]])
-
-        raster::writeRaster(
-          stripe,
-          filename=paste(outDir, outFilename, sep=""),
-          format="GTiff",
-          overwrite=TRUE
-        )
-      }
-    }
-  }
-
-  # return(result)
-  # print(horizons_raster)
+  print(paste(Sys.time(), ' - ', 'DONE, sep=""))
 }

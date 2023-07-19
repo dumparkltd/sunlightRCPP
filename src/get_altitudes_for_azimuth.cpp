@@ -1,7 +1,10 @@
+// [[Rcpp::depends(RcppParallel)]]
+#include <RcppParallel.h>
 #include <Rcpp.h>
 #include <cmath>
 
 using namespace Rcpp;
+using namespace RcppParallel;
 
 // modulo but for doubles
 // scribed from https://stackoverflow.com/a/53998265
@@ -26,6 +29,87 @@ double getCurvatureCorrection(double distance) {
   double totalAngle = anglePerUnit * distance; //  Unit degrees * distance
   return radiusEarth * (1 - cos(deg2rad(totalAngle)));
 }
+
+struct ParallelWorker : public Worker {
+  const NumericMatrix& input_dem;
+  Rcpp::NumericMatrix output_matrix;
+  const double dx;
+  const double dy;
+  const double dxy;
+  const int height;
+  const int width;
+  const double maxElev;
+  const double inc_factor;
+
+  ParallelWorker(
+    const NumericMatrix& input,
+    Rcpp::NumericMatrix output,
+    const double dx,
+    const double dy,
+    const double dxy,
+    const int height,
+    const int width,
+    const double maxElev,
+    const double inc_factor
+  ) :
+    input_dem(input),
+    output_matrix(output),
+    dx(dx),
+    dy(dy),
+    dxy(dxy),
+    height(height),
+    width(width),
+    maxElev(maxElev),
+    inc_factor(inc_factor) {}
+
+  void operator()(std::size_t begin, std::size_t end) {
+    for (std::size_t col = begin; col < end; col++) {
+      for(int row = 0; row < height; row++) {
+        double elevationOrigin = input_dem(row, col);
+        double altitudeMin = 0;
+        if (!NumericVector::is_na(elevationOrigin)) {
+          // calculate maximum possible difference in elevation
+          int step = 0;
+          int stepFactor = 0;
+          // traverse transect to find max altitude difference
+          while (true) {
+            stepFactor = step + pow(inc_factor, step + 1) ;
+            step++;
+            // stepFactor = step;
+            double distanceStep = dxy * stepFactor;
+            int rowStep = row + round(dy * stepFactor);
+            int colStep = col + round(dx * stepFactor);
+            if (rowStep >= 0 && rowStep < height && colStep >= 0 && colStep < width) {
+              double elevStep = input_dem(rowStep, colStep);
+              double elevDiffStep = elevStep - elevationOrigin;
+              if (elevDiffStep > 0) {
+                if (elevDiffStep > 0) {
+                  // calculate angle
+                  double altitudeStep = rad2deg(atan(elevDiffStep / distanceStep));
+                  if (altitudeStep > altitudeMin) {
+                    altitudeMin = altitudeStep;
+                  } else {
+                    // check if higher altitude is feasible
+                    double elevationMaxDiff = maxElev - elevationOrigin;
+                    double altitudeMax = rad2deg(atan(elevationMaxDiff / distanceStep));
+                    if (altitudeMax < altitudeMin) {
+                      break;
+                    }
+                  }
+                }
+              }
+            } else {
+              // break if out of bounds
+              break;
+            }
+          }
+        }
+        output_matrix(row, col) = altitudeMin;
+      }
+    }
+  }
+};
+
 
 //' @export
 // [[Rcpp::export]]
@@ -87,67 +171,26 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
   // dxy = distance of sampling steps in m
   double dxy = sqrt(pow(dx, 2) + pow(dy, 2)) * resolution;
 
-
   // remember shape
   int width = dem.ncol();
   int height = dem.nrow();
-
-  // initialize result matrix
-  NumericMatrix minAltitudeMatrix(height, width);
-
-  // get max height from dem
   double maxElev = max(dem);
+  // initialize result matrix
+  Rcpp::NumericMatrix minAltitudeMatrix(height, width);
 
-  for(int col = 0; col < width; col++) {
-    Rcpp::checkUserInterrupt();
-    for(int row = 0; row < height; row++) {
-      double elevationOrigin = dem(row, col);
-      double altitudeMin = 0;
-      double correction = 0;
-      if (!NumericVector::is_na(elevationOrigin)) {
-        // calculate maximum possible difference in elevation
-        int step = 0;
-        int stepFactor = 0;
-        // traverse transect to find max altitude difference
-        while (true) {
-          stepFactor = step + pow(incFactor, step + 1) ;
-          step++;
-          // stepFactor = step;
-          double distanceStep = dxy * stepFactor;
-          int rowStep = row + round(dy * stepFactor);
-          int colStep = col + round(dx * stepFactor);
-          if (rowStep >= 0 && rowStep < height && colStep >= 0 && colStep < width) {
-            double elevStep = dem(rowStep, colStep);
-            double elevDiffStep = elevStep - elevationOrigin;
-            if (elevDiffStep > 0) {
-              // if (correctCurvature) {
-              //   correction = getCurvatureCorrection(distanceStep);
-              //   elevDiffStep = elevDiffStep - correction;
-              // }
-              if (elevDiffStep > 0) {
-                // calculate angle
-                double altitudeStep = rad2deg(atan(elevDiffStep / distanceStep));
-                if (altitudeStep > altitudeMin) {
-                  altitudeMin = altitudeStep;
-                } else {
-                  // check if higher altitude is feasible
-                  double elevationMaxDiff = maxElev - correction - elevationOrigin;
-                  double altitudeMax = rad2deg(atan(elevationMaxDiff / distanceStep));
-                  if (altitudeMax < altitudeMin) {
-                    break;
-                  }
-                }
-              }
-            }
-          } else {
-            // break if out of bounds
-            break;
-          }
-        }
-      }
-      minAltitudeMatrix(row, col) = altitudeMin;
-    }
-  }
+  ParallelWorker parallelWorker(
+      dem, // input matrix
+      minAltitudeMatrix, // output matrix
+      dx,
+      dy,
+      dxy,
+      height,
+      width,
+      maxElev,
+      incFactor
+  );
+  // parallelise columns
+  parallelFor(0, width, parallelWorker);
 
   return minAltitudeMatrix;
 }

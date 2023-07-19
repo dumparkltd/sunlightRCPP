@@ -34,7 +34,7 @@ shadeForTimeAndLocation = function(
   }
   spatial_point <- SpatialPoints(data.frame(lon,lat), proj4string = CRS("+proj=longlat +datum=WGS84"))
   reprojected_point <- spTransform(spatial_point, raster::crs(dem_original))
-
+# print(reprojected_point)
   # figure out azimuth
   datetime <- as.POSIXct(timeUTC,  tz = "UTC");
   sun_position <- suncalc::getSunlightPosition(
@@ -57,7 +57,7 @@ shadeForTimeAndLocation = function(
 
   # read alt file for azimuth and stripe
   altFileAndPath = paste(altitudesDir, 'altitudes_azimuth-', azimuth, '_stripe-',stripe_no,'.tif', sep="")
-  # print(altFileAndPath)
+  print(altFileAndPath)
   altitudes <- raster::raster(altFileAndPath)
   min_alt <- extract(altitudes, reprojected_point)
   print(paste('required altitude at location: ', min_alt, sep=''))

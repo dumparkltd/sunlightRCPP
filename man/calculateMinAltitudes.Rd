@@ -4,16 +4,16 @@
 \alias{calculateMinAltitudes}
 \title{Calculate minimum altitudes}
 \usage{
-calculateMinAltitudes(dem, azimuth_min, azimuth_max, settings)
+calculateMinAltitudes(dem_raster, azimuth_min, azimuth_max, settings)
 }
 \arguments{
-\item{dem}{dem raster}
-
 \item{azimuth_min}{lower bounds of azimuths to calculate}
 
 \item{azimuth_max}{upper bounds of azimuths}
 
 \item{settings}{a settings object}
+
+\item{dem}{dem raster}
 }
 \value{
 list of min altitudes for range of azimuths

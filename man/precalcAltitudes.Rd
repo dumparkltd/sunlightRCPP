@@ -15,7 +15,7 @@ precalcAltitudes(
   gridConvergence = 0,
   correctCurvature = FALSE,
   sampleIncFactor = 1,
-  cutVertically = TRUE,
+  cutVertically = FALSE,
   stripeWidth = 10000
 )
 }
