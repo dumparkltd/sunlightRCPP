@@ -15,5 +15,6 @@ Imports:
     Rcpp,
     RcppParallel,
     sp,
-    suncalc
+    suncalc,
+    stringr
 LinkingTo: Rcpp, RcppParallel

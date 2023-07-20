@@ -67,12 +67,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_sunlight_for_altitudes_cpp
+NumericMatrix get_sunlight_for_altitudes_cpp(NumericMatrix& altitudes, double minAltitude);
+RcppExport SEXP _sunlightRCPP_get_sunlight_for_altitudes_cpp(SEXP altitudesSEXP, SEXP minAltitudeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type altitudes(altitudesSEXP);
+    Rcpp::traits::input_parameter< double >::type minAltitude(minAltitudeSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_sunlight_for_altitudes_cpp(altitudes, minAltitude));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_sunlight_for_altitudes_p_cpp
+NumericMatrix get_sunlight_for_altitudes_p_cpp(NumericMatrix& altitudes, double minAltitude);
+RcppExport SEXP _sunlightRCPP_get_sunlight_for_altitudes_p_cpp(SEXP altitudesSEXP, SEXP minAltitudeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type altitudes(altitudesSEXP);
+    Rcpp::traits::input_parameter< double >::type minAltitude(minAltitudeSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_sunlight_for_altitudes_p_cpp(altitudes, minAltitude));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_sunlightRCPP_get_altitude_distances_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitude_distances_for_azimuth_cpp, 6},
     {"_sunlightRCPP_get_altitudes_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_altitudes_for_azimuth_cpp, 6},
     {"_sunlightRCPP_get_dxdy_for_azimuth_cpp", (DL_FUNC) &_sunlightRCPP_get_dxdy_for_azimuth_cpp, 3},
     {"_sunlightRCPP_get_shades_for_altitudes_cpp", (DL_FUNC) &_sunlightRCPP_get_shades_for_altitudes_cpp, 2},
+    {"_sunlightRCPP_get_sunlight_for_altitudes_cpp", (DL_FUNC) &_sunlightRCPP_get_sunlight_for_altitudes_cpp, 2},
+    {"_sunlightRCPP_get_sunlight_for_altitudes_p_cpp", (DL_FUNC) &_sunlightRCPP_get_sunlight_for_altitudes_p_cpp, 2},
     {NULL, NULL, 0}
 };
 

@@ -45,7 +45,7 @@ calculateMinAltitudes = function(dem_raster, azimuth_min, azimuth_max, settings)
     )
     raster::writeRaster(
       rasterForAzimuth,
-      filename=outFilename),
+      filename=outFilename,
       format="GTiff",
       overwrite=TRUE
     )

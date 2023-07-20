@@ -134,5 +134,5 @@ precalcAltitudes = function(
       cut_vertically = cutVertically
     )
   )
-  print(paste(Sys.time(), ' - ', 'DONE, sep=""))
+  print(paste(Sys.time(), ' - ', 'DONE', sep=""))
 }

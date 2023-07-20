@@ -21,3 +21,13 @@ get_shades_for_altitudes_cpp <- function(altitudes, minAltitude) {
     .Call(`_sunlightRCPP_get_shades_for_altitudes_cpp`, altitudes, minAltitude)
 }
 
+#' @export
+get_sunlight_for_altitudes_cpp <- function(altitudes, minAltitude) {
+    .Call(`_sunlightRCPP_get_sunlight_for_altitudes_cpp`, altitudes, minAltitude)
+}
+
+#' @export
+get_sunlight_for_altitudes_p_cpp <- function(altitudes, minAltitude) {
+    .Call(`_sunlightRCPP_get_sunlight_for_altitudes_p_cpp`, altitudes, minAltitude)
+}
+
