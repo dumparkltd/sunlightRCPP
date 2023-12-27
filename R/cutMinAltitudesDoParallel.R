@@ -7,14 +7,14 @@
 #'@param azimuth_max upper bounds of azimuths
 #'@param settings a settings object
 #'@import raster
-#'@import stringr
 #'@import doParallel
 #'@import foreach
+#'@import stringr
 #'@return list of min altitudes for range of azimuths
 #'@export
 #'
 #'
-cutMinAltitudes = function(
+cutMinAltitudesDoParallel = function(
     altitudeDir,
     altitudeFilePattern,
     altitudeFilePlaceholder = 'azi',

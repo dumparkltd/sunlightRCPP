@@ -14,14 +14,7 @@
 calculateMinAltitudes = function(dem_raster, azimuth_min, azimuth_max, settings) {
   for (azimuth in seq(azimuth_min, azimuth_max, by = settings$azimuth_step)) {
     print(paste(Sys.time(), ' - ', 'calculating altitudes for azimuth: ', azimuth, sep=""))
-    outFilename = paste(
-      settings$out_dir,
-      "altitudes_azimuth-", azimuth,
-      "_res-", gsub("\\.", "-", as.character(settings$resolution_dem_target)),
-      "_inc-", gsub("\\.", "-", as.character(settings$inc_factor)),
-      ".tif",
-      sep=""
-    )
+
     # call CPP function get_altitudes_for_azimuth_cpp to calculate the minimum
     # altitudes for all cells in the dem and current azimuth
     # returns a NumericMatrix
@@ -29,11 +22,11 @@ calculateMinAltitudes = function(dem_raster, azimuth_min, azimuth_max, settings)
       as.matrix(dem_raster),
       azimuth,
       settings$grid_convergence,
-      settings$resolution_dem_target,
+      settings$resolution_dem,
       settings$correct_curvature,
       settings$inc_factor
     )
-    print(paste(Sys.time(), ' - ', 'writing raster for azimuth ', azimuth, ' to: ', outFilename, sep=""))
+
 
     rasterForAzimuth <- raster::raster(
       nrows = raster::nrow(dem_raster),
@@ -43,19 +36,28 @@ calculateMinAltitudes = function(dem_raster, azimuth_min, azimuth_max, settings)
       crs = raster::crs(dem_raster),
       vals = alt_azi
     )
-    raster::writeRaster(
-      rasterForAzimuth,
-      filename=outFilename,
-      format="GTiff",
-      overwrite=TRUE
-    )
-    print(paste(Sys.time(), ' - ', 'DONE: writing raster for azimuth: ', azimuth, sep=""))
+    if (settings$cut_vertically == FALSE) {
+      outFilename = paste(
+        settings$out_dir,
+        "altitudes_azimuth-", azimuth,
+        "_res-", gsub("\\.", "-", as.character(settings$resolution_dem)),
+        "_inc-", gsub("\\.", "-", as.character(settings$inc_factor)),
+        ".tif",
+        sep=""
+      )
+      print(paste(Sys.time(), ' - ', 'writing raster for azimuth ', azimuth, ' to: ', outFilename, sep=""))
+      raster::writeRaster(
+        rasterForAzimuth,
+        filename=outFilename,
+        format="GTiff",
+        overwrite=TRUE
+      )
+      print(paste(Sys.time(), ' - ', 'DONE: writing raster for azimuth: ', azimuth, sep=""))
+    }
     if (settings$cut_vertically == TRUE) {
       print(paste(Sys.time(), ' - ', 'writing raster stripes for azimuth: ', azimuth, sep=""))
-      xres = raster::xres(rasterForAzimuth) # in px
-      stripe_w_px = stripeWidth/xres # in p
-      num_stripes <- ceiling(ncol(rasterForAzimuth) / stripe_w_px)
-      stripe_boundaries <- seq(from = 1, to = ncol(rasterForAzimuth), by = stripe_w_px)
+      num_stripes <- ceiling(ncol(rasterForAzimuth) / settings$stripe_w_px)
+      stripe_boundaries <- seq(from = 1, to = ncol(rasterForAzimuth), by = settings$stripe_w_px)
       stripe_boundaries <- c(stripe_boundaries, ncol(rasterForAzimuth))
       stripes <- list()
       for (i in 1:(num_stripes)) {
@@ -76,7 +78,7 @@ calculateMinAltitudes = function(dem_raster, azimuth_min, azimuth_max, settings)
 
         raster::writeRaster(
           stripe,
-          filename=paste(outDir, outFilename, sep=""),
+          filename=paste(settings$out_dir, outFilename, sep=""),
           format="GTiff",
           overwrite=TRUE
         )

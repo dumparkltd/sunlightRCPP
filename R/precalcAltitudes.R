@@ -17,12 +17,12 @@ precalcAltitudes = function(
     azimuthStep = 1,
     azimuthMin = NULL,
     azimuthMax = NULL,
-    targetResolution = 12.5,
     gridConvergence = 0, # WGS84
     correctCurvature = FALSE,
     sampleIncFactor = 1,
     cutVertically = FALSE,
-    stripeWidth = 10000
+    stripeWidth = 10000,
+    originalResolution = NULL
 ) {
   # gridConvergence = 1.4804503109283933 for lambert conformal conic
 
@@ -30,17 +30,22 @@ precalcAltitudes = function(
   demFileAndPath = paste(demDir, dem, sep="")
   print(paste(Sys.time(), " - ", "loading dem: ", dem, " from: ", demFileAndPath, sep=""))
   dem_original = raster::raster(demFileAndPath)
-
-  if (raster::xres(dem_original) != targetResolution) {
-    print(paste("re-sampling dem: ", targetResolution, sep = ""))
-    # re-sample original raster
-    dem_at_res <- raster::aggregate(
-      dem_original,
-      fact = targetResolution / raster::xres(dem_original)
-    )
+  if (!is.null(originalResolution)) {
+    res_original = originalResolution
   } else {
-    dem_at_res <- dem_original
+    res_original = raster::xres(dem_original)
   }
+
+  # if (originalResolution != targetResolution) {
+  #   print(paste("re-sampling dem: ", targetResolution, sep = ""))
+  #   # re-sample original raster
+  #   dem_at_res <- raster::aggregate(
+  #     dem_original,
+  #     fact = targetResolution / originalResolution
+  #   )
+  # } else {
+  #   dem_at_res <- dem_original
+  # }
 
   azimuth_min <- azimuthMin
   azimuth_max <- azimuthMax
@@ -49,7 +54,7 @@ precalcAltitudes = function(
     # figure out min/max azimuth
     latlon <- as.data.frame(
       sp::spTransform(
-        raster::xyFromCell(dem_at_res,c(1),spatial=TRUE),
+        raster::xyFromCell(dem_original,c(1),spatial=TRUE),
         sp::CRS("+proj=longlat")
       )
     )
@@ -118,20 +123,21 @@ precalcAltitudes = function(
     ))
   }
   print(paste(Sys.time(), ' - ', 'Calculating altitudes...', sep=""))
-
+  xres = raster::xres(dem_original) # in px
   # get altitude raster layers for each azimuth
   calculateMinAltitudes(
-    dem_at_res,
+    dem_original,
     azimuth_min,
     azimuth_max,
     settings = list(
       azimuth_step = azimuthStep,
-      resolution_dem_target = targetResolution,
+      resolution_dem = res_original,
       grid_convergence = gridConvergence,
       correct_curvature = correctCurvature,
       inc_factor = sampleIncFactor,
       out_dir = outDir,
-      cut_vertically = cutVertically
+      cut_vertically = cutVertically,
+      stripe_w_px = stripeWidth / xres # in p
     )
   )
   print(paste(Sys.time(), ' - ', 'DONE', sep=""))

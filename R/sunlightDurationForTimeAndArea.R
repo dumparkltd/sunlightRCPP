@@ -11,22 +11,37 @@
 
 sunlightDurationForTimeAndArea = function(
     timeStartUTC = '2022-08-20 0:00:00',
-    timeStopUTC = '2022-08-20 23:59:00',
-    timestep = 15, # minutes,
-    altitudesDir = "~/projects/INRAE/data/altitudes/RCPP/stripes/",
-    altitudeFilePattern = "altitudes_azimuth-{azi}_res-50_inc-1-03_stripe-1.tif",
-    altitudeFilePlaceholder = 'azi',
-    outDir = "~/projects/INRAE/data/altitudes/RCPP/stripes/duration/",
-    outFilename = "duration.tif",
-    azimuthStep = 2,
-    azimuthMin = 56
+    timeStopUTC,
+    timestep,
+    altitudesDir,
+    altitudeFilePattern,
+    altitudeFilePlaceholder,
+    outDir,
+    outFilename,
+    azimuthStep,
+    azimuthMin
 ) {
 
   # figure out lat/lon to calculate sunlight times from any altitudes file
   # load raster
-  altFile <- stringr::str_replace(altitudeFilePattern, '\\{azi\\}', as.character(azimuthMin))
+  match <- paste("\\{", altitudeFilePlaceholder, "\\}", sep="")
+  pattern <- altitudeFilePattern
+  altFile <- stringr::str_replace(pattern, match, as.character(azimuthMin))
   altFileAndPath <- paste(altitudesDir, altFile, sep="")
-  print(paste(Sys.time(), " - ", "loading sample altitudes file: ", altFile, " from: ", altFileAndPath, "for any azimuth: ", azimuthMin , sep=""))
+  print(paste(
+    Sys.time(),
+    " - ",
+    "loading sample altitudes file: ",
+    altFile,
+    " from: ",
+    altFileAndPath,
+    " for any azimuth: ",
+    azimuthMin,
+    " (using pattern: ",
+    altitudeFilePattern,
+    ")",
+    sep=""
+  ))
 
   sampleRaster = raster::raster(altFileAndPath)
   # print ('sampleRaster loaded')

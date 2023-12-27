@@ -11,12 +11,12 @@ precalcAltitudes(
   azimuthStep = 1,
   azimuthMin = NULL,
   azimuthMax = NULL,
-  targetResolution = 12.5,
   gridConvergence = 0,
   correctCurvature = FALSE,
   sampleIncFactor = 1,
   cutVertically = FALSE,
-  stripeWidth = 10000
+  stripeWidth = 10000,
+  originalResolution
 )
 }
 \description{

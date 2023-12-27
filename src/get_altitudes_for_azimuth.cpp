@@ -121,7 +121,7 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
     bool correctCurvature,
     double incFactor
   ) {
-
+  Rprintf("get_altitudes_for_azimuth_cpp (%f) \n", azimuth);
   // figure out row and column offset dx, dy for azimuth
   double azi = dmod((azimuth + gridConvergence), 360);
   // steps x and y as factor
@@ -177,7 +177,6 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
   double maxElev = max(dem);
   // initialize result matrix
   Rcpp::NumericMatrix minAltitudeMatrix(height, width);
-
   ParallelWorker parallelWorker(
       dem, // input matrix
       minAltitudeMatrix, // output matrix
@@ -190,7 +189,10 @@ NumericMatrix get_altitudes_for_azimuth_cpp(
       incFactor
   );
   // parallelise columns
+  Rprintf("parallelWorker start (%i) \n", width);
+
   parallelFor(0, width, parallelWorker);
 
+  Rprintf("parallelWorker stop (%i) \n", width);
   return minAltitudeMatrix;
 }
